@@ -183,3 +183,8 @@ if env("USE_S3"):
         "CacheControl": "max-age=86400",
     }
     DEFAULT_FILE_STORAGE = "project.storage_backends.MediaStorage"
+
+# Configure Django App for Heroku.
+import django_heroku
+django_heroku.settings(locals())
+del DATABASES['default']['OPTIONS']['sslmode']
