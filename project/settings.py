@@ -26,8 +26,8 @@ environ.Env.read_env()
 # Build paths inside the project like this: BASE_DIR / ...
 BASE_DIR = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-MEDIA_ROOT = BASE_DIR / "media"
-MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -43,6 +43,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "registration",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,11 +54,11 @@ INSTALLED_APPS = [
     # Third-party
     "debug_toolbar",
     "django_extensions",
-    "registration",
     "ordered_model",
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
+    "imagekit",
     # Project-specific
     "users",
     "recipes",

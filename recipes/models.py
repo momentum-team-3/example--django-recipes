@@ -1,8 +1,12 @@
 from django.db import models
 from django.db.models import Q
-# from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.search import SearchVector
 from users.models import User
 from ordered_model.models import OrderedModel
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFit, ResizeToFill
+
+
 
 class Tag(models.Model):
     tag = models.CharField(max_length=100, unique=True)
@@ -71,6 +75,9 @@ class Recipe(models.Model):
     favorited_by = models.ManyToManyField(
         to=User, related_name="favorite_recipes", blank=True
     )
+    image = models.ImageField(upload_to="recipes/", null=True, blank=True)
+    image_medium = ImageSpecField(source='image', processors=[ResizeToFit(300, 300)], format='JPEG', options={'quality': 80})
+    image_thumb = ImageSpecField(source='image', processors=[ResizeToFill(150, 150)], format='JPEG', options={'quality': 80})
 
     def get_tag_names(self):
         tag_names = []

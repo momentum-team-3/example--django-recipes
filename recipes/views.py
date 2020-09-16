@@ -28,26 +28,6 @@ def homepage(request):
     return render(request, "recipes/home.html")
 
 
-# class RecipeListView(ListView):
-#     def get_template_names(self):
-#         if self.request.is_ajax():
-#             return ["recipes/_recipe_list.html"]
-#         else:
-#             return ["recipes/recipe_list.html"]
-
-#     def get_queryset(self):
-#         order_field = self.request.GET.get("order", "title")
-
-#         return (
-#             Recipe.objects.for_user(self.request.user)
-#             .annotate(
-#                 times_favorited=Count("favorited_by"),
-#                 num_ingredients=Count("ingredients"),
-#                 times_cooked=Count("meal_plans"),
-#             )
-#             .order_by(order_field)
-#         )
-
 def recipe_list(request):
     order_field = request.GET.get("order", "title")
     recipes = Recipe.objects.for_user(request.user).annotate(
@@ -77,7 +57,7 @@ def recipe_detail(request, pk):
 @login_required
 def add_recipe(request):
     if request.method == "POST": # user has submitted form
-        form = RecipeForm(data=request.POST)
+        form = RecipeForm(data=request.POST, files=request.FILES)
         if form.is_valid():
             recipe = form.save(commit=False)
             recipe.user = request.user
@@ -102,7 +82,7 @@ class AddRecipeView(View):
         )
 
     def post(self, request):
-        form = RecipeForm(data=request.POST, files=request.FILES)
+        form = RecipeForm(data=request.POST)
         ingredient_formset = IngredientFormset(data=request.POST)
         if form.is_valid() and ingredient_formset.is_valid():
             recipe = form.save(commit=False)
