@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.views.defaults import page_not_found
 from django.views.generic import DetailView, ListView
 
 from .forms import (
@@ -27,47 +28,55 @@ def homepage(request):
     return render(request, "recipes/home.html")
 
 
-class RecipeListView(ListView):
-    def get_template_names(self):
-        if self.request.is_ajax():
-            return ["recipes/_recipe_list.html"]
-        else:
-            return ["recipes/recipe_list.html"]
+# class RecipeListView(ListView):
+#     def get_template_names(self):
+#         if self.request.is_ajax():
+#             return ["recipes/_recipe_list.html"]
+#         else:
+#             return ["recipes/recipe_list.html"]
 
-    def get_queryset(self):
-        order_field = self.request.GET.get("order", "title")
+#     def get_queryset(self):
+#         order_field = self.request.GET.get("order", "title")
 
-        return (
-            Recipe.objects.for_user(self.request.user)
-            .annotate(
+#         return (
+#             Recipe.objects.for_user(self.request.user)
+#             .annotate(
+#                 times_favorited=Count("favorited_by"),
+#                 num_ingredients=Count("ingredients"),
+#                 times_cooked=Count("meal_plans"),
+#             )
+#             .order_by(order_field)
+#         )
+
+def recipe_list(request):
+    order_field = request.GET.get("order", "title")
+    recipes = Recipe.objects.for_user(request.user).annotate(
                 times_favorited=Count("favorited_by"),
                 num_ingredients=Count("ingredients"),
                 times_cooked=Count("meal_plans"),
-            )
-            .order_by(order_field)
-        )
+            ).order_by(order_field)
+
+    return render(request, "recipes/recipe_list.html", {"recipes": recipes})
 
 
-class RecipeDetailView(DetailView):
-    def get_queryset(self):
-        recipes = Recipe.objects.for_user(self.request.user)
-        recipes = recipes.annotate(
+def recipe_detail(request, pk):
+    recipes = Recipe.objects.for_user(request.user).annotate(
             num_ingredients=Count("ingredients"),
             times_cooked=Count("meal_plans"),
             first_cooked=Min("meal_plans__date"),
-        )
-        return recipes
+    )
+    recipe = get_object_or_404(recipes, pk=pk)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_user_favorite"] = self.request.user.is_favorite_recipe(self.object)
-        context["ingredient_form"] = IngredientForm()
-        return context
+    return render(request, "recipes/recipe_detail.html", {
+        "recipe": recipe,
+        "is_user_favorite": request.user.is_favorite_recipe(recipe),
+        "ingredient_form": IngredientForm()
+    })
 
 
 @login_required
 def add_recipe(request):
-    if request.method == "POST":
+    if request.method == "POST": # user has submitted form
         form = RecipeForm(data=request.POST)
         if form.is_valid():
             recipe = form.save(commit=False)
@@ -158,7 +167,9 @@ def toggle_favorite_recipe(request, recipe_pk):
 
     if recipe in request.user.favorite_recipes.all():
         request.user.favorite_recipes.remove(recipe)
-        return JsonResponse({"favorite": False})
+        return JsonResponse(
+            {"favorite": False}
+        )
 
     request.user.favorite_recipes.add(recipe)
     return JsonResponse({"favorite": True})
@@ -193,7 +204,7 @@ def add_recipe_step(request, recipe_pk):
             recipe_step = form.save(commit=False)
             recipe_step.recipe = recipe
             recipe_step.save()
-            return redirect(to="recipe_detail", recipe_pk=recipe.pk)
+            return redirect(to="recipe_detail", pk=recipe.pk)
     else:
         form = RecipeStepForm()
 
@@ -325,4 +336,4 @@ def copy_recipe(request, recipe_pk):
 
     cloned_recipe.tags.set(original_recipe.tags.all())
 
-    return redirect(to="recipe_detail", recipe_pk=cloned_recipe.pk)
+    return redirect(to="recipe_detail", pk=cloned_recipe.pk)

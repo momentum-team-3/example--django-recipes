@@ -21,7 +21,7 @@ Recipe Book - {{ recipe.title }}
   </a>
 </h2>
 {% if recipe.original_recipe %}
-<p>Copied from <a href="{% url 'recipe_detail' recipe_pk=recipe.original_recipe.pk %}">{{ recipe.original_recipe.title }}</a></p>
+<p>Copied from <a href="{% url 'recipe_detail' pk=recipe.original_recipe.pk %}">{{ recipe.original_recipe.title }}</a></p>
 {% endif %}
 
 <p class="f6">
@@ -98,7 +98,7 @@ Recipe Book - {{ recipe.title }}
   const toggleFavoriteLink = document.querySelector("#toggle-favorite")
   toggleFavoriteLink.addEventListener('click', function (e) {
     e.preventDefault()
-    const recipeId = toggleFavoriteLink.dataset['recipeId']
+    const recipeId = toggleFavoriteLink.dataset.recipeId
     fetch(`/recipes/${recipeId}/favorite/`, {
       method: 'POST'
     })

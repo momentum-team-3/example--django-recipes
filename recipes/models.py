@@ -43,14 +43,14 @@ class RecipeQuerySet(models.QuerySet):
             recipes = self.filter(public=True)
         return recipes
 
-    # def search(self, search_term):
-    #     recipes = self.annotate(
-    #         search=SearchVector(
-    #             "title", "ingredients__item", "steps__text", "tags__tag"
-    #         )
-    #     )
-    #     recipes = recipes.filter(search=search_term).distinct("pk")
-    #     return recipes
+    def search(self, search_term):
+        recipes = self.annotate(
+            search=SearchVector(
+                "title", "ingredients__item", "steps__text", "tags__tag"
+            )
+        )
+        recipes = recipes.filter(search=search_term).distinct("pk")
+        return recipes
 
     def public(self):
         return self.filter(public=True)
@@ -141,9 +141,9 @@ class MealPlan(models.Model):
 
 def search_recipes_for_user(user, search_term):
     recipes = get_available_recipes_for_user(Recipe.objects, user)
-    recipes = recipes.annotate(
-        search=SearchVector("title", "ingredients__item", "steps__text", "tags__tag")
-    )
+    # recipes = recipes.annotate(
+    #     search=SearchVector("title", "ingredients__item", "steps__text", "tags__tag")
+    # )
     recipes = recipes.filter(search=search_term).distinct("pk")
     # recipes = recipes.filter(title__search=search_term).distinct()
     return recipes

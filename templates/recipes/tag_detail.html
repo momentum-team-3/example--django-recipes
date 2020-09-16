@@ -7,7 +7,7 @@
 
 <ul>
   {% for recipe in recipes.all %}
-    <li><a href="{% url 'recipe_detail' recipe_pk=recipe.pk %}">{{ recipe.title }}</a></li>
+    <li><a href="{% url 'recipe_detail' pk=recipe.pk %}">{{ recipe.title }}</a></li>
   {% endfor %}
 </ul>
 {% endblock %}
