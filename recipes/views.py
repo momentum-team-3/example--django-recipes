@@ -8,15 +8,12 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.views.defaults import page_not_found
-from django.views.generic import DetailView, ListView
 
 from .forms import (
     IngredientForm,
     RecipeForm,
     RecipeStepForm,
     IngredientFormset,
-    make_meal_plan_form_for_user,
 )
 from .models import Recipe, Tag, get_available_recipes_for_user
 
