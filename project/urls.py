@@ -13,8 +13,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from recipes.views import meal_plan_add_remove_recipe
-import api
 from django.contrib import admin
 from django.conf import settings
 from django.urls import include, path
@@ -22,11 +20,6 @@ from django.conf.urls.static import static
 
 from recipes import views as recipes_views
 from api import views as api_views
-
-from rest_framework.routers import DefaultRouter
-
-router = DefaultRouter()
-router.register(r"recipes", api_views.RecipeViewSet, basename="recipes")
 
 urlpatterns = [
     path("", recipes_views.homepage, name="homepage"),
@@ -74,11 +67,9 @@ urlpatterns = [
     path("tags/<str:tag_name>/", recipes_views.view_tag, name="view_tag"),
     path("admin/", admin.site.urls),
     path("accounts/", include("registration.backends.default.urls")),
-    path("api-auth/", include("rest_framework.urls")),
-    path("api/test/", api_views.TestApiView.as_view()),
-    path("api/auth/", include("djoser.urls")),
-    path("api/auth/", include("djoser.urls.authtoken")),
-    path("api/", include(router.urls)),
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/recipes/', api_views.RecipeListView.as_view()),
+    path('api/recipes/<int:pk>/', api_views.RecipeDetailView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
@@ -86,6 +77,4 @@ if settings.DEBUG:
 
     urlpatterns = [
         path("__debug__/", include(debug_toolbar.urls)),
-        # For django versions before 2.0:
-        # url(r'^__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns

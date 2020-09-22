@@ -24,6 +24,9 @@ django-storages = "*"
 psycopg2 = "*"
 django-heroku = "*"
 gunicorn = "*"
+djangorestframework = "*"
+markdown = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.8"
