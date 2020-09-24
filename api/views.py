@@ -3,8 +3,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser, ParseError
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 
-from api.serializers import RecipeSerializer
+from api.serializers import RecipeSerializer, NewRecipeStepSerializer
 from recipes.models import Recipe
 from django.shortcuts import get_object_or_404
 
@@ -37,6 +38,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return self.request.user.recipes
 
+class RecipeStepCreateView(generics.CreateAPIView):
+    serializer_class = NewRecipeStepSerializer
+    queryset = Recipe.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.is_valid()
+        recipe = serializer.validated_data['recipe']
+        if self.request.user != recipe.user:
+            raise PermissionDenied("You are not the owner of that recipe")
+        serializer.save()
+
+
+# class AltRecipeStepCreateView(APIView):
+#     def post(self, request, recipe_pk):
+#         recipe = get_object_or_404(request.user.recipes, pk=recipe_pk)
+#         serializer = NewRecipeStepSerializer(data=request.data)
+#         serializer.is_valid()
+#         step = serializer.save(recipe=recipe)
+#         return Response(NewRecipeStepSerializer(step).data)
+
+
 class RecipeImageView(APIView):
     # Learned how to do this from
     # https://www.goodcode.io/articles/django-rest-framework-file-upload/
@@ -52,8 +74,3 @@ class RecipeImageView(APIView):
         file = request.data['file']
         recipe.image.save(file.name, file, save=True)
         return Response(status=status.HTTP_200_OK)
-
-
-        # Set image on the recipe to the uploaded file
-        # Save the recipe
-        # Let the user know things are good
