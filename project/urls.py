@@ -17,9 +17,13 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
+from rest_framework.routers import DefaultRouter
 
 from recipes import views as recipes_views
 from api import views as api_views
+
+api_router = DefaultRouter()
+api_router.register('recipes', api_views.RecipeViewSet, basename='recipe')
 
 urlpatterns = [
     path("", recipes_views.homepage, name="homepage"),
@@ -68,8 +72,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("registration.backends.default.urls")),
     path('api-auth/', include('rest_framework.urls')),
-    path('api/recipes/', api_views.RecipeListView.as_view()),
-    path('api/recipes/<int:pk>/', api_views.RecipeDetailView.as_view()),
+    # path('api/recipes/', api_views.RecipeListView.as_view()),
+    # path('api/recipes/<int:pk>/', api_views.RecipeDetailView.as_view()),
+    path('api/recipes/<int:pk>/image/', api_views.RecipeImageView.as_view()),
+    path('api/', include(api_router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
