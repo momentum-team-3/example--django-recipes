@@ -75,9 +75,6 @@ class Recipe(models.Model):
     favorited_by = models.ManyToManyField(
         to=User, related_name="favorite_recipes", blank=True
     )
-    image = models.ImageField(upload_to="recipes/", null=True, blank=True)
-    image_medium = ImageSpecField(source='image', processors=[ResizeToFit(300, 300)], format='JPEG', options={'quality': 80})
-    image_thumb = ImageSpecField(source='image', processors=[ResizeToFill(150, 150)], format='JPEG', options={'quality': 80})
 
     def get_tag_names(self):
         tag_names = []
@@ -108,6 +105,14 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class RecipeImage(models.Model):
+    recipe = models.ForeignKey(to=Recipe, on_delete=models.CASCADE, related_name="images")
+    alt_text = models.CharField(max_length=255, null=True, blank=True)
+    image = models.ImageField(upload_to="recipe_images/", null=True, blank=True)
+    image_medium = ImageSpecField(source='image', processors=[ResizeToFit(300, 300)], format='JPEG', options={'quality': 80})
+    image_thumb = ImageSpecField(source='image', processors=[ResizeToFill(150, 150)], format='JPEG', options={'quality': 80})
 
 
 class Ingredient(models.Model):

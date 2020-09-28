@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from recipes.models import Recipe, RecipeStep, Ingredient
+from recipes.models import Recipe, RecipeImage, RecipeStep, Ingredient
 
 class NestedIngredientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,7 +15,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     ingredients = NestedIngredientSerializer(many=True, read_only=True)
     steps = NestedRecipeStepSerializer(many=True, read_only=True)
-    image_medium = serializers.ImageField()
 
     class Meta:
         model = Recipe
@@ -28,9 +27,14 @@ class RecipeSerializer(serializers.ModelSerializer):
             'public',
             'ingredients',
             'steps',
-            'image',
-            'image_medium',
         ]
+
+class RecipeImageSerializer(serializers.ModelSerializer):
+    image_thumb = serializers.ImageField()
+
+    class Meta:
+        model = RecipeImage
+        fields = ['pk', 'recipe', 'image', 'image_thumb']
 
 class NewRecipeStepSerializer(serializers.ModelSerializer):
     class Meta:

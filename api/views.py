@@ -5,8 +5,8 @@ from rest_framework.parsers import FileUploadParser, ParseError
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 
-from api.serializers import RecipeSerializer, NewRecipeStepSerializer
-from recipes.models import Recipe
+from api.serializers import RecipeImageSerializer, RecipeSerializer, NewRecipeStepSerializer
+from recipes.models import Recipe, RecipeImage
 from django.shortcuts import get_object_or_404
 
 
@@ -65,12 +65,14 @@ class RecipeImageView(APIView):
 
     parser_classes = (FileUploadParser,)
 
-    def put(self, request, pk):
+    def post(self, request, pk):
         recipe = get_object_or_404(self.request.user.recipes, pk=pk)
         # Read the uploaded file
         if 'file' not in request.data:
             raise ParseError("Empty content")
 
         file = request.data['file']
-        recipe.image.save(file.name, file, save=True)
-        return Response(status=status.HTTP_200_OK)
+        image = RecipeImage(recipe=recipe)
+        image.image.save(file.name, file, save=True)
+        serializer = RecipeImageSerializer(instance=image)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

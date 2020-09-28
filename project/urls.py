@@ -73,7 +73,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("registration.backends.default.urls")),
     path('api-auth/', include('rest_framework.urls')),
-    path('api/recipes/<int:pk>/image/', api_views.RecipeImageView.as_view()),
+    path('api/recipes/<int:pk>/images/', api_views.RecipeImageView.as_view()),
     path('api/recipe_steps/', api_views.RecipeStepCreateView.as_view()),
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),

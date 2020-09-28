@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block meta %}
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+{% endblock %}
+
 {% block content %}
 
 <h2>Edit recipe</h2>
@@ -30,5 +34,88 @@
     <button type="submit">Update recipe</button>
   </div>
 </form>
+
+<h2>Add photos to recipe</h2>
+
+<h3>Current photos</h3>
+
+<div id="current-photos">
+  {% for image in recipe.images.all %}
+    <img src="{{ image.image_thumb.url }}" alt="{{ image.alt_text }}">
+  {% empty %}
+    <p>You have no photos for this recipe.</p>
+  {% endfor %}
+</div>
+
+<div id="progress">
+</div>
+
+<form id="recipe_image_form" data-recipe-id="{{ recipe.id }}">
+  <div>
+    <label for="images">Files to upload:</label>
+    <input type='file' id="images" multiple />
+  </div>
+  <div>
+    <button id="recipe_image_submit" type="submit">Upload photos</button>
+  </div>
+</form>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken')
+
+const imageInput = document.querySelector("#images")
+const imageForm = document.querySelector("#recipe_image_form")
+const currentPhotos = document.querySelector("#current-photos")
+let imageList = []
+
+imageInput.addEventListener('change', function () {
+  imageList = []
+  for (const image of imageInput.files) {
+    imageList.push(image)
+  }
+  console.log(imageList)
+})
+
+imageForm.addEventListener('submit', function (event) {
+  event.preventDefault()
+  for (const image of imageList) {
+    sendImage(image)
+  }
+})
+
+const sendImage = function (image) {
+  const filename = image.name
+  const recipePk = imageForm.dataset.recipeId
+  const url = `/api/recipes/${recipePk}/images/`
+  axios.post(url, image, {
+    headers: {
+      'Content-Disposition': `attachment; filename=${filename}`,
+      'Content-Type': image.type,
+      'X-CSRFToken': csrftoken
+    },
+    withCredentials: true
+  }).then(res => {
+    const newImg = document.createElement("img")
+    newImg.src = res.data.image_thumb
+    currentPhotos.appendChild(newImg)
+  })
+}
+
+</script>
 
 {% endblock %}

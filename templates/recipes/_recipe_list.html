@@ -1,8 +1,8 @@
 <ul class="list pl0 flex flex-wrap" id="recipe-list">
   {% for recipe in recipes %}
     <li class="ba bw1 pa2 mr2 mb2">
-      {% if recipe.image %}
-      <div><img src="{{ recipe.image_thumb.url }}"></div>
+      {% if recipe.images.count > 0 %}
+      <div><img src="{{ recipe.images.first.image_thumb.url }}"></div>
       {% endif %}
       <div>
         <a href="{% url 'recipe_detail' pk=recipe.pk %}">{{ recipe.title }}</a> (by {{ recipe.user }})
